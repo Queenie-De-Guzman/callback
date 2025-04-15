@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Redirecting to Alarm...</title>
+    <script>
+      // Function to get URL parameters
+      function getUrlParameter(name) {
+        name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+        var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+        var results = regex.exec(location.search);
+        return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+      }
+
+      // Handle the callback and redirect to the app
+      window.onload = function() {
+        try {
+          // Get the authorization code from the URL
+          const code = getUrlParameter('code');
+          const error = getUrlParameter('error');
+          const state = getUrlParameter('state');
+          
+          if (error) {
+            document.getElementById('status').textContent = 'Authentication Error: ' + error;
+            console.error('Auth error:', error);
+          } else if (code) {
+            // Redirect back to the app with the authorization code
+            document.getElementById('status').textContent = 'Authentication successful! Redirecting to app...';
+            console.log('Got code, redirecting to app...');
+            
+            // Use the proper app scheme format
+			  window.location.href = `com.alarm.reminderapp:/oauth2redirect?code=${code}&state=${state}`;
+          } else {
+            document.getElementById('status').textContent = 'No authorization code received.';
+            console.error('No code received');
+          }
+        } catch (e) {
+          document.getElementById('status').textContent = 'Redirect error: ' + e.message;
+          console.error('Redirect error:', e);
+        }
+      };
+    </script>    
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        padding-top: 50px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        padding: 30px;
+        max-width: 500px;
+        margin: 0 auto;
+      }
+      h1 {
+        color: #4285f4;
+      }
+      #status {
+        margin-top: 20px;
+        color: #555;
+      }
+      .loader {
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid #4285f4;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+        margin: 20px auto;
+      }
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Alarm</h1>
+      <div class="loader"></div>
+      <p id="status">Completing authentication, please wait...</p>
+    </div>
+  </body>
+</html>
